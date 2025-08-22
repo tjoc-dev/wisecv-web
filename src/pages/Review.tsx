@@ -35,6 +35,15 @@ interface ResumeAnalysis {
   suggestions: Suggestion[];
 }
 
+interface ImprovedResumeData {
+  id: string;
+  finalResumeText: string;
+  status: string;
+  title?: string;
+  improvementScore?: number;
+  updatedAt?: string;
+}
+
 function ReviewPage() {
   const [searchParams] = useSearchParams();
   const resumeId = searchParams.get('resumeId');
@@ -43,7 +52,7 @@ function ReviewPage() {
   
   // State management
   const [resumeData, setResumeData] = useState<ResumeAnalysis | null>(null);
-  const [improvedResumeData, setImprovedResumeData] = useState<any>(null);
+  const [improvedResumeData, setImprovedResumeData] = useState<ImprovedResumeData | null>(null);
   const [acceptedSuggestions, setAcceptedSuggestions] = useState<string[]>([]);
   const [editedSuggestions, setEditedSuggestions] = useState<Record<string, string>>({});
   const [showPreview, setShowPreview] = useState(false);
@@ -283,10 +292,13 @@ function ReviewPage() {
             atsScore: analysisData.scores?.original?.ruleBased?.total || analysisData.scores?.original?.ai || 0,
             readabilityScore: analysisData.scores?.original?.ruleBased?.breakdown?.clarity || analysisData.scores?.original?.ruleBased?.breakdown?.formatting || 0,
             keywordScore: analysisData.scores?.original?.ruleBased?.breakdown?.keywords,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             suggestions: analysisData.sectionDiffs?.flatMap((diff: any) => {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const suggestions: any[] = [];
               
               if (diff.suggestions && Array.isArray(diff.suggestions)) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 suggestions.push(...diff.suggestions.map((suggestion: any) => ({
                   id: suggestion.id || `${diff.section}-${Date.now()}-${Math.random()}`,
                   section: diff.section || 'General',

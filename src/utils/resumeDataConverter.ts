@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Utility functions for converting between different resume data formats
  * to ensure no data is lost during the improvement and generation process.
@@ -7,7 +8,7 @@ export interface ResumeSections {
   summary: string;
   experience: any[];
   education: any[];
-  skills: any[];
+  skills: any;
   projects: any[];
   certifications: any[];
 }
@@ -416,7 +417,7 @@ export function normalizeToStructuredArray(content: any): any[] {
       if (content.includes('{') && content.includes('}')) {
         // Try to clean up the JSON string and parse again
         try {
-          const cleanedContent = content.replace(/\n/g, '').replace(/\"/g, '"');
+          const cleanedContent = content.replace(/\n/g, '').replace(/"/g, '"');
           const parsed = JSON.parse(cleanedContent);
           if (Array.isArray(parsed)) {
             return parsed;

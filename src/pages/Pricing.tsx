@@ -65,7 +65,7 @@ export default function Pricing() {
       } else {
         throw new Error(response.data.message || 'Failed to fetch pricing plans');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching pricing plans:', error);
       setLoadingState(LoadingState.ERROR);
       toast.error('Failed to load pricing plans. Please try again.');

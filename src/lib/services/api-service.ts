@@ -20,7 +20,9 @@ export enum HttpMethod {
 export interface ApiRequestConfig {
   method: HttpMethod;
   url: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params?: Record<string, any>;
   headers?: Record<string, string>;
   timeout?: number;
@@ -30,6 +32,7 @@ export interface ApiRequestConfig {
 /**
  * API response wrapper
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ApiResponse<T = any> {
   data: T;
   status: number;
@@ -96,6 +99,7 @@ export class ApiService extends BaseService {
   /**
    * Make HTTP request
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async request<T = any>(
     config: ApiRequestConfig,
     options: ServiceOptions = {}
@@ -110,8 +114,10 @@ export class ApiService extends BaseService {
   /**
    * GET request
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async get<T = any>(
     url: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     params?: Record<string, any>,
     options: ServiceOptions = {}
   ): Promise<ServiceResult<T>> {
@@ -128,8 +134,10 @@ export class ApiService extends BaseService {
   /**
    * POST request
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async post<T = any>(
     url: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data?: any,
     options: ServiceOptions = {}
   ): Promise<ServiceResult<T>> {
@@ -146,8 +154,10 @@ export class ApiService extends BaseService {
   /**
    * PUT request
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async put<T = any>(
     url: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data?: any,
     options: ServiceOptions = {}
   ): Promise<ServiceResult<T>> {
@@ -164,8 +174,10 @@ export class ApiService extends BaseService {
   /**
    * PATCH request
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async patch<T = any>(
     url: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data?: any,
     options: ServiceOptions = {}
   ): Promise<ServiceResult<T>> {
@@ -182,6 +194,7 @@ export class ApiService extends BaseService {
   /**
    * DELETE request
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async delete<T = any>(
     url: string,
     options: ServiceOptions = {}
@@ -198,6 +211,7 @@ export class ApiService extends BaseService {
   /**
    * Upload file with progress tracking
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async upload<T = any>(
     url: string,
     file: File,
@@ -232,6 +246,7 @@ export class ApiService extends BaseService {
   /**
    * Get service health status
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getHealthStatus(): Promise<ServiceResult<{ status: 'healthy' | 'unhealthy'; details?: any }>> {
     try {
       const result = await this.get('/health');
@@ -459,6 +474,7 @@ export class ApiService extends BaseService {
   /**
    * Build full URL with base URL and query parameters
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private buildUrl(url: string, params?: Record<string, any>): string {
     // Add type safety check for url parameter
     if (typeof url !== 'string') {

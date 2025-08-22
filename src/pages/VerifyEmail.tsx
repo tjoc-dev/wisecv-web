@@ -40,19 +40,20 @@ export default function VerifyEmail() {
         setTimeout(() => {
           navigate('/auth', { replace: true });
         }, 3000);
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Email verification error:', error);
         
-        if (error.message?.includes('expired') || error.message?.includes('invalid')) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        if (errorMessage?.includes('expired') || errorMessage?.includes('invalid')) {
           setStatus('expired');
           setMessage('This verification link has expired or is invalid.');
         } else {
           setStatus('error');
-          setMessage('An error occurred during verification. Please try again.');
+          setMessage(errorMessage || 'Email verification failed. Please try again.');
         }
         
         toast.error('Verification failed', {
-          description: error.message || 'Please try again or contact support.',
+          description: errorMessage || 'Please try again or contact support.',
         });
       }
     };
@@ -70,8 +71,9 @@ export default function VerifyEmail() {
     try {
       await requestEmailVerification(email);
       toast.success('Verification email sent! Please check your inbox.');
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to resend verification email');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to resend verification email';
+      toast.error(errorMessage);
     }
   };
 

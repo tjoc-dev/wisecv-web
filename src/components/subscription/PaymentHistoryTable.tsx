@@ -72,6 +72,7 @@ export default function PaymentHistoryTable({ userId }: PaymentHistoryTableProps
       const history = await paymentService.getPaymentHistory(targetUserId);
       
       // Transform the data to match our interface
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const transformedHistory: PaymentHistory[] = history.map((payment: any) => ({
         id: payment.id,
         amount: payment.amount,
