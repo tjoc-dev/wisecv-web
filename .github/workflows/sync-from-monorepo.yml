@@ -34,7 +34,7 @@ jobs:
     - name: Sync files from monorepo
       run: |
         # Get the source reference (from input or default to main)
-        SOURCE_REF="${{ github.event.inputs.source_ref || 'main' }}"
+        SOURCE_REF="${{ github.event.inputs.source_ref || 'master' }}"
         
         # Create a temporary branch for syncing
         git checkout -b sync-temp
@@ -48,8 +48,9 @@ jobs:
         # Move files from apps/wisecv-web to root
         mv apps/wisecv-web/* .
         mv apps/wisecv-web/.* . 2>/dev/null || true
-        rmdir apps/wisecv-web
-        rmdir apps 2>/dev/null || true
+        
+        # Remove the now-empty apps directory structure
+        rm -rf apps
         
         # Stage all changes
         git add -A
