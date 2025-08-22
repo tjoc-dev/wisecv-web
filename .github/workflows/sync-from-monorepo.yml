@@ -34,7 +34,7 @@ jobs:
     - name: Sync files from monorepo
       run: |
         # Get the source reference (from input or default to main)
-        SOURCE_REF="${{ github.event.inputs.source_ref || 'master' }}"
+        SOURCE_REF="${{ github.event.inputs.source_ref || 'main' }}"
         
         # Create a temporary branch for syncing
         git checkout -b sync-temp
@@ -123,31 +123,26 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v2
-      with:
-        version: 8
-    
     - name: Setup Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'pnpm'
+        cache: 'npm'
     
     - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      run: npm ci
     
     - name: Run type check
-      run: pnpm type-check
+      run: npm run type-check
     
     - name: Run linting
-      run: pnpm lint
+      run: npm run lint
     
     - name: Run tests
-      run: pnpm test
+      run: npm test
     
     - name: Build application
-      run: pnpm build
+      run: npm run build
     
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
@@ -206,26 +201,21 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v2
-      with:
-        version: 8
-    
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: 18
-        cache: 'pnpm'
+        cache: 'npm'
     
     - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      run: npm ci
     
     - name: Build for production
-      run: pnpm build
+      run: npm run build
     
     - name: Serve built app
       run: |
-        pnpm preview &
+        npm run preview &
         sleep 10
     
     - name: Run Lighthouse CI
