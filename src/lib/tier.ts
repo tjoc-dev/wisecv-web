@@ -136,28 +136,31 @@ export async function getUserTier(userId: string): Promise<UserTierInfo> {
     const response = await api.get(`/tiers/user/${userId}`);
     console.log('getUserTier: API response received:', response.data);
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const axiosError = error as any; // Type assertion for axios error properties
     console.error('getUserTier: API call failed:', {
-      error: error.message,
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      data: error.response?.data,
+      error: errorMessage,
+      status: axiosError.response?.status,
+      statusText: axiosError.response?.statusText,
+      data: axiosError.response?.data,
       config: {
-        url: error.config?.url,
-        method: error.config?.method,
-        headers: error.config?.headers
+        url: axiosError.config?.url,
+        method: axiosError.config?.method,
+        headers: axiosError.config?.headers
       }
     });
     
-    if (error.response?.status === 404) {
+    if (axiosError.response?.status === 404) {
       throw new Error('User tier not found - please contact support');
     }
     
-    if (error.response?.status === 401) {
+    if (axiosError.response?.status === 401) {
       throw new Error('Authentication required - please log in again');
     }
     
-    const message = error.response?.data?.message || error.message || 'Failed to fetch user tier information';
+    const message = axiosError.response?.data?.message || errorMessage || 'Failed to fetch user tier information';
     throw new Error(message);
   }
 }

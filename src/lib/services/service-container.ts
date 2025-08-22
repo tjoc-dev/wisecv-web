@@ -18,7 +18,9 @@ export interface ServiceRegistration<T> {
  * Dependency injection container for managing services
  */
 export class ServiceContainer {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private services = new Map<string, ServiceRegistration<any>>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private instances = new Map<string, any>();
   private resolving = new Set<string>();
 
@@ -181,6 +183,7 @@ export class ServiceLocator {
  * Decorator for automatic service injection
  */
 export function inject(serviceName: string) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return function (target: any, propertyKey: string) {
     Object.defineProperty(target, propertyKey, {
       get() {
@@ -215,6 +218,7 @@ export class ServiceConfigRegistry {
  * Helper function to create service factories
  */
 export function createServiceFactory<T>(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ServiceClass: new (config?: ServiceConfig, ...deps: any[]) => T,
   configKey?: string
 ): ServiceFactory<T> {
@@ -228,6 +232,7 @@ export function createServiceFactory<T>(
  * Helper function to create service factories with dependencies
  */
 export function createServiceFactoryWithDeps<T>(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ServiceClass: new (config: ServiceConfig, ...deps: any[]) => T,
   dependencies: string[],
   configKey?: string

@@ -16,6 +16,7 @@ export interface Transaction {
   createdAt: string;
   updatedAt: string;
   description?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata?: Record<string, any>;
 }
 
@@ -31,6 +32,7 @@ export interface Subscription {
   currentPeriodEnd: string;
   createdAt: string;
   provider?: 'stripe' | 'paystack';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata?: Record<string, any>;
 }
 
@@ -38,12 +40,14 @@ export interface CreatePaymentOptions {
   amount: number;
   currency: 'USD' | 'NGN';
   description?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata?: Record<string, any>;
 }
 
 export interface CreateSubscriptionOptions {
   planId: string;
   currency: 'USD' | 'NGN';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata?: Record<string, any>;
 }
 

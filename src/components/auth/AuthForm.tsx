@@ -79,7 +79,7 @@ export default function AuthForm() {
           // Navigate to dashboard
           navigate('/dashboard', { replace: true });
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
           console.error('Login error:', error);
           const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
           
@@ -145,7 +145,7 @@ export default function AuthForm() {
             description: 'Welcome to WiseCV!',
           });
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
           console.error('Signup error:', error);
           const errorMessage = error instanceof Error ? error.message : 'Could not create account';
           

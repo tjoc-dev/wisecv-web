@@ -48,6 +48,7 @@ export default function ResumeUploader() {
             description: 'Your resume has been analyzed successfully'
           });
         },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onError: (error: any) => {
           let message = 'Failed to analyze resume';
           if (error instanceof Error) message = error.message;

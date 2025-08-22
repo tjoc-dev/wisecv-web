@@ -17,8 +17,8 @@ interface Suggestion {
   id: string;
   section: string;
   type: string;
-  original: any;
-  suggested: any;
+  original: unknown;
+  suggested: unknown;
   reason: string;
   severity: 'high' | 'medium' | 'low';
 }

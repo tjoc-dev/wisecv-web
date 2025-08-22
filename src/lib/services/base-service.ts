@@ -33,6 +33,7 @@ export class ServiceError extends Error {
     message: string,
     public code: ErrorCode = ErrorCode.INTERNAL_SERVER_ERROR,
     public statusCode?: number,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public details?: Record<string, any>
   ) {
     super(message);
@@ -62,6 +63,7 @@ export interface ServiceOptions {
   signal?: AbortSignal;
   timeout?: number;
   retries?: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata?: Record<string, any>;
 }
 
@@ -220,6 +222,7 @@ export abstract class BaseService {
   /**
    * Get service health status
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   abstract getHealthStatus(): Promise<ServiceResult<{ status: 'healthy' | 'unhealthy'; details?: any }>>;
 }
 
@@ -232,24 +235,28 @@ export class ServiceLogger {
     private enabled: boolean = true
   ) {}
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   info(message: string, metadata?: Record<string, any>) {
     if (this.enabled) {
       console.log(`[${this.serviceName}] INFO: ${message}`, metadata || {});
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   warn(message: string, metadata?: Record<string, any>) {
     if (this.enabled) {
       console.warn(`[${this.serviceName}] WARN: ${message}`, metadata || {});
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   error(message: string, metadata?: Record<string, any>) {
     if (this.enabled) {
       console.error(`[${this.serviceName}] ERROR: ${message}`, metadata || {});
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   debug(message: string, metadata?: Record<string, any>) {
     if (this.enabled) {
       console.debug(`[${this.serviceName}] DEBUG: ${message}`, metadata || {});

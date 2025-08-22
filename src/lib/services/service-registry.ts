@@ -73,7 +73,8 @@ export class AuthService extends BaseService {
 
   async getHealthStatus() {
     return this.execute(
-      async () => ({ status: 'healthy' as const }),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      async () => ({ status: 'healthy' as const, details: {} as any }),
       'healthCheck'
     );
   }
@@ -93,7 +94,7 @@ export class ResumeService extends BaseService {
     );
   }
 
-  async createResume(data: any) {
+  async createResume(data: unknown) {
     return this.execute(
       async () => {
         const apiService = serviceContainer.resolve<ApiService>(SERVICE_NAMES.API);
@@ -103,7 +104,7 @@ export class ResumeService extends BaseService {
     );
   }
 
-  async updateResume(id: string, data: any) {
+  async updateResume(id: string, data: unknown) {
     return this.execute(
       async () => {
         const apiService = serviceContainer.resolve<ApiService>(SERVICE_NAMES.API);
@@ -123,7 +124,7 @@ export class ResumeService extends BaseService {
     );
   }
 
-  async improveResume(structuredData: any, jobDescription?: string) {
+  async improveResume(structuredData: unknown, jobDescription?: string) {
     return this.execute(
       async () => {
         const apiService = serviceContainer.resolve<ApiService>(SERVICE_NAMES.API);
@@ -138,7 +139,8 @@ export class ResumeService extends BaseService {
 
   async getHealthStatus() {
     return this.execute(
-      async () => ({ status: 'healthy' as const }),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      async () => ({ status: 'healthy' as const, details: {} as any }),
       'healthCheck'
     );
   }
@@ -158,7 +160,7 @@ export class JobService extends BaseService {
     );
   }
 
-  async createJob(data: any) {
+  async createJob(data: unknown) {
     return this.execute(
       async () => {
         const apiService = serviceContainer.resolve<ApiService>(SERVICE_NAMES.API);
@@ -172,7 +174,7 @@ export class JobService extends BaseService {
     return this.execute(
       async () => {
         const apiService = serviceContainer.resolve<ApiService>(SERVICE_NAMES.API);
-        return apiService.patch(`/jobs/${id}/status`, { status });
+        return apiService.patch(`/jobs/${id}`, { status });
       },
       'updateJobStatus'
     );
@@ -180,7 +182,8 @@ export class JobService extends BaseService {
 
   async getHealthStatus() {
     return this.execute(
-      async () => ({ status: 'healthy' as const }),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      async () => ({ status: 'healthy' as const, details: {} as any }),
       'healthCheck'
     );
   }
@@ -200,7 +203,7 @@ export class PaymentService extends BaseService {
     );
   }
 
-  async createPayment(data: any) {
+  async createPayment(data: unknown) {
     return this.execute(
       async () => {
         const apiService = serviceContainer.resolve<ApiService>(SERVICE_NAMES.API);
@@ -222,7 +225,8 @@ export class PaymentService extends BaseService {
 
   async getHealthStatus() {
     return this.execute(
-      async () => ({ status: 'healthy' as const }),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      async () => ({ status: 'healthy' as const, details: {} as any }),
       'healthCheck'
     );
   }
@@ -264,7 +268,8 @@ export class TierService extends BaseService {
 
   async getHealthStatus() {
     return this.execute(
-      async () => ({ status: 'healthy' as const }),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      async () => ({ status: 'healthy' as const, details: {} as any }),
       'healthCheck'
     );
   }
@@ -296,7 +301,8 @@ export class UploadService extends BaseService {
 
   async getHealthStatus() {
     return this.execute(
-      async () => ({ status: 'healthy' as const }),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      async () => ({ status: 'healthy' as const, details: {} as any }),
       'healthCheck'
     );
   }
@@ -501,7 +507,7 @@ export class ServiceHealthMonitor {
           const result = await service.getHealthStatus();
           this.healthStatus.set(serviceName, result.success);
         }
-      } catch (error) {
+      } catch (error: unknown) {
         this.healthStatus.set(serviceName, false);
         console.error(`Health check failed for ${serviceName}:`, error);
       }
