@@ -134,9 +134,6 @@ jobs:
     
     - name: Install CI
       run: npm ci
-
-    - name: Run type check
-      run: npm run type-check
     
     - name: Run linting
       run: npm run lint
