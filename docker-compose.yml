@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # WiseCV Web Application
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wisecv-web
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      # API Configuration
+      - VITE_API_URL=http://localhost:3000
+      - VITE_API_TIMEOUT=10000
+      
+      # Authentication
+      - VITE_JWT_SECRET=your-development-jwt-secret
+      
+      # Features
+      - VITE_ENABLE_ANALYTICS=true
+      - VITE_ENABLE_NOTIFICATIONS=true
+      
+      # External Services (replace with your keys)
+      - VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_key
+      - VITE_FIREBASE_CONFIG={"apiKey":"your-firebase-config"}
+    volumes:
+      # Mount nginx logs for debugging
+      - ./logs:/var/log/nginx
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # Development setup with hot reload (optional)
+  web-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: wisecv-web-dev
+    ports:
+      - "8080:8080"
+    environment:
+      - VITE_API_URL=http://localhost:3000
+      - VITE_API_TIMEOUT=10000
+      - VITE_JWT_SECRET=your-development-jwt-secret
+      - VITE_ENABLE_ANALYTICS=true
+      - VITE_ENABLE_NOTIFICATIONS=true
+      - VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_key
+      - VITE_FIREBASE_CONFIG={"apiKey":"your-firebase-config"}
+    volumes:
+      # Mount source code for hot reload
+      - .:/app
+      - /app/node_modules
+    command: pnpm dev --host 0.0.0.0 --port 8080
+    profiles:
+      - development
+    restart: unless-stopped
+
+volumes:
+  logs:
+    driver: local
+
+networks:
+  default:
+    name: wisecv-web-network

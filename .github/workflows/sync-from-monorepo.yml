@@ -1,0 +1,235 @@
+name: Sync from Monorepo
+
+on:
+  repository_dispatch:
+    types: [sync-web]
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: 'Source branch/tag to sync from'
+        required: false
+        default: 'main'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout target repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.SYNC_TOKEN }}
+        fetch-depth: 0
+    
+    - name: Configure Git
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+    
+    - name: Add monorepo as remote
+      run: |
+        git remote add monorepo https://github.com/${{ secrets.MONOREPO_OWNER }}/${{ secrets.MONOREPO_NAME }}.git
+        git fetch monorepo
+    
+    - name: Sync files from monorepo
+      run: |
+        # Get the source reference (from input or default to main)
+        SOURCE_REF="${{ github.event.inputs.source_ref || 'main' }}"
+        
+        # Create a temporary branch for syncing
+        git checkout -b sync-temp
+        
+        # Remove all files except .git and .github
+        find . -maxdepth 1 -not -name '.git' -not -name '.github' -not -name '.' -exec rm -rf {} +
+        
+        # Copy files from monorepo apps/wisecv-web
+        git checkout monorepo/$SOURCE_REF -- apps/wisecv-web/
+        
+        # Move files from apps/wisecv-web to root
+        mv apps/wisecv-web/* .
+        mv apps/wisecv-web/.* . 2>/dev/null || true
+        rmdir apps/wisecv-web
+        rmdir apps 2>/dev/null || true
+        
+        # Stage all changes
+        git add -A
+        
+        # Check if there are changes to commit
+        if git diff --staged --quiet; then
+          echo "No changes to sync"
+          exit 0
+        fi
+        
+        # Commit changes
+        git commit -m "sync: update from monorepo ($SOURCE_REF)"
+        
+        # Switch to main branch and merge
+        git checkout main
+        git merge sync-temp --no-ff -m "Merge sync from monorepo"
+        
+        # Clean up temporary branch
+        git branch -d sync-temp
+        
+        # Push changes
+        git push origin main
+    
+    - name: Create release on version change
+      id: check_version
+      run: |
+        # Check if package.json version changed
+        if git diff HEAD~1 HEAD --name-only | grep -q "package.json"; then
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "create_release=true" >> $GITHUB_OUTPUT
+        else
+          echo "create_release=false" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Create GitHub Release
+      if: steps.check_version.outputs.create_release == 'true'
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ steps.check_version.outputs.version }}
+        release_name: Release v${{ steps.check_version.outputs.version }}
+        body: |
+          Automated release from monorepo sync.
+          
+          ## Changes
+          This release includes the latest changes from the monorepo.
+          
+          ## Docker Image
+          ```bash
+          docker pull ghcr.io/${{ github.repository }}:v${{ steps.check_version.outputs.version }}
+          ```
+          
+          ## Deployment
+          The application is automatically deployed and available at the configured URL.
+        draft: false
+        prerelease: false
+
+  build-and-test:
+    runs-on: ubuntu-latest
+    needs: sync
+    if: always() && needs.sync.result == 'success'
+    
+    strategy:
+      matrix:
+        node-version: [18, 20]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 8
+    
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'pnpm'
+    
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+    
+    - name: Run type check
+      run: pnpm type-check
+    
+    - name: Run linting
+      run: pnpm lint
+    
+    - name: Run tests
+      run: pnpm test
+    
+    - name: Build application
+      run: pnpm build
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: dist-${{ matrix.node-version }}
+        path: dist/
+        retention-days: 7
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: [sync, build-and-test]
+    if: always() && needs.sync.result == 'success' && needs.build-and-test.result == 'success'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ghcr.io/${{ github.repository }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=raw,value=latest,enable={{is_default_branch}}
+    
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  lighthouse:
+    runs-on: ubuntu-latest
+    needs: docker-build
+    if: always() && needs.docker-build.result == 'success'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 8
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
+        cache: 'pnpm'
+    
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+    
+    - name: Build for production
+      run: pnpm build
+    
+    - name: Serve built app
+      run: |
+        pnpm preview &
+        sleep 10
+    
+    - name: Run Lighthouse CI
+      uses: treosh/lighthouse-ci-action@v10
+      with:
+        configPath: './.lighthouserc.json'
+        uploadArtifacts: true
+        temporaryPublicStorage: true
