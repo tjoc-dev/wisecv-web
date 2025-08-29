@@ -135,14 +135,11 @@ export async function signup(email: string, password: string, firstName: string,
     const country = await getCountryFromIP();
     // Determine currency based on country
     const currency = getCurrencyFromCountry(country);
-    // Set appname as required
-    const appName = 'wisecv';
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const payload: any = {
       email,
       password,
-      appName,
       country,
       currency,
       firstName,
