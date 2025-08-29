@@ -21,9 +21,7 @@ export async function handleGoogleAuth(googleResponse: GoogleAuthResponse, isSig
     // Get country and currency information
     const country = await getCountryFromIP();
     const currency = getCurrencyFromCountry(country);
-    
-    // Set appName as required by your API
-    const appName = 'wisecv';
+
     
     // Determine if we should sign up or log in
     if (isSignup) {
