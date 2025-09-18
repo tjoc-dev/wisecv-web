@@ -43,7 +43,7 @@
     "@radix-ui/react-tooltip": "^1.1.4",
     "@react-oauth/google": "^0.12.2",
     "@tanstack/react-query": "^5.56.2",
-    "@tjoc/payments": "^1.0.0",
+    "@tjoc/payments": "^2.0.0",
     "@types/react-google-recaptcha": "^2.1.9",
     "axios": "^1.6.0",
     "class-variance-authority": "^0.7.1",
